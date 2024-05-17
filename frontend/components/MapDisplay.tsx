@@ -11,6 +11,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import { useScore } from "@/context/ScoreContext";
 
 interface NodesData {
   type: string;
@@ -56,11 +57,6 @@ interface Road {
   };
 }
 
-interface Score {
-  status: string;
-  score: number;
-}
-
 const fetchGeoJSON = async (endpoint: string) => {
   const response = await fetch(`/api/data?endpoint=${endpoint}`);
   const data = await response.json();
@@ -69,20 +65,19 @@ const fetchGeoJSON = async (endpoint: string) => {
 
 const MapDisplay = () => {
   const [nodesData, setNodesData] = useState<NodesData | null>(null);
-  const [scoreData, setScoreData] = useState<Score | null>(null);
   const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
   const [renderNodes, setRenderNodes] = useState(false);
+  const { score } = useScore();
 
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
-    // fetchGeoJSON("score").then(setScoreData);
     fetchGeoJSON("roads").then((data) => {
       // setRoadsData(data);
       setTimeout(() => setRenderNodes(true), 100);
     });
   }, []);
 
-  console.log("Map:", scoreData);
+  console.log("Map:", score);
 
   return (
     <MapContainer

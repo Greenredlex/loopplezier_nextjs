@@ -1,39 +1,39 @@
 import { useState } from "react";
+import { useScore } from "@/context/ScoreContext";
 
 function ScoreForm() {
-  const [score, setScore] = useState("");
+  const [inputScore, setInputScore] = useState<number | null>(null);
+  const { setScore } = useScore();
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    const formData = {
-      score: score,
-    };
 
     const response = await fetch("/api/data?endpoint=score", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ score: inputScore }),
     });
 
     const responseData = await response.json();
 
-    console.log("Score Form frontend:", responseData);
+    setScore(responseData.score);
+
+    console.log("ScoreForm:", responseData.score);
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor="score">Score:</label>
-      <input
-        type="text"
-        id="score"
-        value={score}
-        onChange={(e) => setScore(e.target.value)}
-        required
-      />
-      <button type="submit">Submit Score</button>
+      <label>
+        Enter Score:
+        <input
+          type="number"
+          value={inputScore ?? ""}
+          onChange={(e) => setInputScore(Number(e.target.value))}
+        />
+      </label>
+      <button type="submit">Submit</button>
     </form>
   );
 }

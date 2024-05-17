@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ScoreProvider } from "@/context/ScoreContext";
 import ScoreForm from "@/components/ScoreForm";
 import dynamic from "next/dynamic";
 
@@ -10,9 +11,11 @@ const MapDisplay = dynamic(() => import("@/components/MapDisplay"), {
 
 export default function Home() {
   return (
-    <div className="flex h-screen w-full">
-      <ScoreForm />
-      <MapDisplay />
-    </div>
+    <ScoreProvider>
+      <div className="flex h-screen w-full">
+        <ScoreForm />
+        <MapDisplay />
+      </div>
+    </ScoreProvider>
   );
 }
