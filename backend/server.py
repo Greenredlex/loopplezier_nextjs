@@ -26,16 +26,24 @@ def df_geojson():
 @app.route('/score', methods=['POST'])
 def calculate_score():
     data = request.get_json()
-    score = data['score']
+    # Dit is het format van de data die binnenkomt. 
+    # Je kan print(data) callen om het te zien in je terminal.
+    # {scores: 
+    #  {'Score openbare verlichting': number, 
+    #   'Score bomen': number, 
+    #   'Score water': number, 
+    #   'Score monumenten': number, 
+    #   'Score drukke wegen': number, 
+    #   'Score parken': number
+    # }}
 
 
-    new_score = int(score)*2
+    scores = data['scores']
+    scores['Score openbare verlichting'] += 2
 
-    
-    result = {'status': 'Received', 'score': new_score}
-    print(result)
+    print(scores)
 
-    return jsonify(result)
+    return jsonify(scores)
 
 
 if __name__ == '__main__':

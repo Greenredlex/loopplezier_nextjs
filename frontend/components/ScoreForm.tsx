@@ -1,11 +1,42 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useScore } from "@/context/ScoreContext";
+import { Scores } from "@/types/types";
+import NumberInputForm from "./NumberInputForm";
 
 function ScoreForm() {
-  const [inputScore, setInputScore] = useState<number | null>(null);
+  const [inputScores, setInputScores] = useState<Scores>({
+    "Score openbare verlichting": 0,
+    "Score bomen": 0,
+    "Score water": 0,
+    "Score monumenten": 0,
+    "Score drukke wegen": 0,
+    "Score parken": 0,
+  });
   const { setScore } = useScore();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInputScores((prevScores) => ({
+      ...prevScores,
+      [name]: Number(value),
+    }));
+  };
+
+  const handleIncrement = (name: keyof Scores) => {
+    setInputScores((prevScores) => ({
+      ...prevScores,
+      [name]: prevScores[name] + 1,
+    }));
+  };
+
+  const handleDecrement = (name: keyof Scores) => {
+    setInputScores((prevScores) => ({
+      ...prevScores,
+      [name]: prevScores[name] - 1,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const response = await fetch("/api/data?endpoint=score", {
@@ -13,14 +44,12 @@ function ScoreForm() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ score: inputScore }),
+      body: JSON.stringify({ scores: inputScores }),
     });
 
     const responseData = await response.json();
 
-    setScore(responseData.score);
-
-    console.log("ScoreForm:", responseData.score);
+    setScore(responseData);
   };
 
   return (
@@ -30,37 +59,26 @@ function ScoreForm() {
         className="p-4 border border-[#44454d] rounded-lg text-sm"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col">
-          <label className="mb-2">Score</label>
-          <div className="flex justify-between rounded-lg bg-[#0e1117]">
-            <input
-              type="number"
-              value={inputScore ?? ""}
-              onChange={(e) => setInputScore(Number(e.target.value))}
-              className="py-2.5 pl-2 text-white bg-[#0e1117] focus:outline-none rounded-l-lg"
-            />
-            <div className="flex">
-              <button
-                type="button"
-                onClick={() =>
-                  setInputScore((prev) => (prev !== null ? prev - 1 : 0))
-                }
-                className="flex items-center justify-center py-1 px-3 text-lg text-white hover:bg-red-500"
-              >
-                <p className="mb-0.5">-</p>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setInputScore((prev) => (prev !== null ? prev + 1 : 1))
-                }
-                className="flex items-center justify-center py-1 px-3 text-lg text-white hover:bg-red-500 rounded-r-lg"
-              >
-                <p className="mb-0.5">+</p>
-              </button>
-            </div>
-          </div>
-        </div>
+        {(
+          [
+            "Score openbare verlichting",
+            "Score bomen",
+            "Score water",
+            "Score monumenten",
+            "Score drukke wegen",
+            "Score parken",
+          ] as (keyof Scores)[]
+        ).map((score) => (
+          <NumberInputForm
+            key={score}
+            score={score}
+            value={inputScores[score]}
+            onChange={handleChange}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
+          />
+        ))}
+
         <button
           className="p-2 mt-4 rounded-lg border hover:border-red-500 hover:text-red-500"
           type="submit"

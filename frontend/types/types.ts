@@ -1,5 +1,8 @@
 export interface Scores {
-    TreeScore: number;
-    WaterScore: number;
-    AirScore: number;
+  "Score openbare verlichting": number;
+  "Score bomen": number;
+  "Score water": number;
+  "Score monumenten": number;
+  "Score drukke wegen": number;
+  "Score parken": number;
   }

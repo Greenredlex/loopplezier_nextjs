@@ -72,7 +72,7 @@ const MapDisplay = () => {
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
     fetchGeoJSON("roads").then((data) => {
-      // setRoadsData(data);
+      setRoadsData(data);
       setTimeout(() => setRenderNodes(true), 100);
     });
   }, []);
@@ -88,7 +88,7 @@ const MapDisplay = () => {
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {roadsData &&
+      {/* {roadsData &&
         roadsData.features.map((road, idx) => (
           <Polyline
             key={idx}
@@ -98,7 +98,7 @@ const MapDisplay = () => {
             ])}
             color="#f5f0a6"
           />
-        ))}
+        ))} */}
 
       {renderNodes &&
         nodesData &&
