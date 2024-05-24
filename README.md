@@ -1,6 +1,6 @@
 # loopplezier_nextjs
 
-loopplezier app v2
+loopplezier app v3
 
 # run backend
 
