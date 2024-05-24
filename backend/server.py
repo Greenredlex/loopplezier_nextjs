@@ -37,13 +37,21 @@ def calculate_score():
     #   'Score parken': number
     # }}
 
+    print(data)
 
-    scores = data['scores']
-    scores['Score openbare verlichting'] += 2
+    gdf = gpd.read_feather('data/df_full.feather').to_crs('EPSG:4326')
+    gdf = gdf.reset_index(drop = True)
 
-    print(scores)
+    gdf = gpd.GeoDataFrame(gdf)
+    full_geojson = gdf.to_json()
 
-    return jsonify(scores)
+
+    # scores = data['scores']
+    # scores['Score openbare verlichting'] += 2
+
+    # print(scores)
+
+    return jsonify(full_geojson)
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ function ScoreForm() {
   };
 
   return (
-    <div className="px-6 py-10 text-white bg-[#262730]">
+    <div className="px-6 py-10 text-white bg-[#262730] w-screen sm:w-80">
       <h1 className="text-lg mb-4">Map Settings</h1>
       <form
         className="p-4 border border-[#44454d] rounded-lg text-sm"

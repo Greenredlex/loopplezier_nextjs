@@ -25,7 +25,7 @@ const NumberInputForm: React.FC<NumberInputFormProps> = ({
           name={score}
           value={value ?? ""}
           onChange={onChange}
-          className="py-2.5 pl-2 text-white bg-[#0e1117] focus:outline-none rounded-l-lg"
+          className="py-2.5 pl-2 text-white bg-[#0e1117] focus:outline-none rounded-l-lg w-full"
         />
         <div className="flex">
           <button
