@@ -32,7 +32,11 @@ export default function Home() {
               <p>X</p>
             </div>
           </div>
-          <ScoreForm />
+
+          <div className="overflow-auto h-full">
+            <ScoreForm />
+          </div>
+
           <div className="absolute top-[50%] right-[-24px]">
             <div
               className="flex justify-center items-center w-6 h-16 text-white bg-[#262730] cursor-pointer translate-y-[-50%]"
