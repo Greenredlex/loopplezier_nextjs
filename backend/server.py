@@ -1,7 +1,18 @@
 from flask import Flask, request, jsonify
 import geopandas as gpd
+from functions import *
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 
 app = Flask(__name__)
+
+def style_function(feature):
+	cmap = cm.RdYlGn  # Choose a continuous colormap (11 colors)
+	value = feature['properties']['Score']  # Get the value from your column
+	normalized_value = (0.5*value)+0.5
+	color = mcolors.rgb2hex(cmap(normalized_value))  # Map the value to a color
+	return {'color': color}
+
 
 @app.route('/nodes')
 def nodes_geojson():
@@ -26,32 +37,22 @@ def df_geojson():
 @app.route('/score', methods=['POST'])
 def calculate_score():
     data = request.get_json()
-    # Dit is het format van de data die binnenkomt. 
-    # Je kan print(data) callen om het te zien in je terminal.
-    # {scores: 
-    #  {'Score openbare verlichting': number, 
-    #   'Score bomen': number, 
-    #   'Score water': number, 
-    #   'Score monumenten': number, 
-    #   'Score drukke wegen': number, 
-    #   'Score parken': number
-    # }}
-
-    print(data)
+    scores = data['scores']
 
     gdf = gpd.read_feather('data/df_full.feather').to_crs('EPSG:4326')
-    gdf = gdf.reset_index(drop = True)
+    gdf = gdf.reset_index(drop = True)    
 
-    gdf = gpd.GeoDataFrame(gdf)
-    full_geojson = gdf.to_json()
+    final_gdf = calculate_new_column(gdf,
+                                     int(scores['Score openbare verlichting']),
+                                     int(scores['Score bomen']),
+                                     int(scores['Score water']),
+                                     int(scores['Score monumenten']),
+                                     int(scores['Score drukke wegen']),
+                                     int(scores['Score parken']))
+
+    return final_gdf.to_json()
 
 
-    # scores = data['scores']
-    # scores['Score openbare verlichting'] += 2
-
-    # print(scores)
-
-    return jsonify(full_geojson)
 
 
 if __name__ == '__main__':

@@ -65,16 +65,16 @@ const fetchGeoJSON = async (endpoint: string) => {
 
 const MapDisplay = () => {
   const [nodesData, setNodesData] = useState<NodesData | null>(null);
-  const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
+  // const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
   const [renderNodes, setRenderNodes] = useState(false);
   const { score } = useScore();
 
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
-    fetchGeoJSON("roads").then((data) => {
-      setRoadsData(data);
-      setTimeout(() => setRenderNodes(true), 100);
-    });
+    // fetchGeoJSON("roads").then((data) => {
+    //   setRoadsData(data);
+    //   setTimeout(() => setRenderNodes(true), 100);
+    // });
   }, []);
 
   console.log("Map:", score);
@@ -89,8 +89,8 @@ const MapDisplay = () => {
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {/* {roadsData &&
-        roadsData.features.map((road, idx) => (
+      {score &&
+        score.features.map((road, idx) => (
           <Polyline
             key={idx}
             positions={road.geometry.coordinates.map((coord) => [
@@ -99,7 +99,7 @@ const MapDisplay = () => {
             ])}
             color="#f5f0a6"
           />
-        ))} */}
+        ))}
 
       {renderNodes &&
         nodesData &&
