@@ -50,7 +50,10 @@ def calculate_score():
                                      int(scores['Score drukke wegen']),
                                      int(scores['Score parken']))
 
-    return final_gdf.to_json()
+    df_route, distance, score = calculate_route(final_gdf, int(scores['Start']), int(scores['End']), int(scores['G_min']), int(scores['G_max']))
+
+    # Return df_route for route and return final_gdf for entire map
+    return df_route.to_json()
 
 
 

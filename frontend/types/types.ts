@@ -5,4 +5,8 @@ export interface Scores {
   "Score monumenten": number;
   "Score drukke wegen": number;
   "Score parken": number;
+  "Start": number,
+  "End": number,
+  "G_min": number,
+  "G_max": number,
   }

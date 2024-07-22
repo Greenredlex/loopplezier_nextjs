@@ -11,6 +11,10 @@ function ScoreForm() {
     "Score monumenten": 0,
     "Score drukke wegen": 0,
     "Score parken": 0,
+    Start: 0,
+    End: 0,
+    G_min: 500,
+    G_max: 500,
   });
   const { setScore } = useScore();
 
@@ -67,6 +71,10 @@ function ScoreForm() {
             "Score monumenten",
             "Score drukke wegen",
             "Score parken",
+            "Start knooppunt",
+            "Eind knooppunt",
+            "Minimale afstand",
+            "Maximale afstand",
           ] as (keyof Scores)[]
         ).map((score) => (
           <NumberInputForm
