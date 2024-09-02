@@ -11,7 +11,12 @@ export interface Scores {
   "Maximale afstand": number,
   }
 
-export interface ResponseData {
+export interface MapData {
+  type: string;
+  features: Road[];
+  }
+
+export interface RouteData {
   type: string;
   features: Road[];
   }

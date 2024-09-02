@@ -1,22 +1,24 @@
 import React, { useState } from "react";
-import { useResponse } from "@/context/ResponseContext";
+import { useMapData } from "@/context/MapDataContext";
+import { useRouteData } from "@/context/RouteDataContext";
 import { Scores } from "@/types/types";
 import NumberInputForm from "./NumberInputForm";
 
 function ScoreForm() {
   const [inputScores, setInputScores] = useState<Scores>({
-    "Score openbare verlichting": 0,
-    "Score bomen": 0,
-    "Score water": 0,
-    "Score monumenten": 0,
-    "Score drukke wegen": 0,
-    "Score parken": 0,
+    "Score openbare verlichting": 2,
+    "Score bomen": 3,
+    "Score water": 4,
+    "Score monumenten": 1,
+    "Score drukke wegen": -7,
+    "Score parken": 3,
     "Start knooppunt": 1399,
     "Eind knooppunt": 1346,
     "Minimale afstand": 200,
     "Maximale afstand": 1000,
   });
-  const { setResponse } = useResponse();
+  const { setMapData } = useMapData();
+  const { setRouteData } = useRouteData();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,10 +42,10 @@ function ScoreForm() {
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleMapSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const response = await fetch("/api/data?endpoint=score", {
+    const response = await fetch("/api/data?endpoint=score_map", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +55,23 @@ function ScoreForm() {
 
     const responseData = await response.json();
 
-    setResponse(responseData);
+    setMapData(responseData);
+  };
+
+  const handleRouteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const response = await fetch("/api/data?endpoint=route", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ scores: inputScores }),
+    });
+
+    const responseData = await response.json();
+
+    setRouteData(responseData);
   };
 
   return (
@@ -61,7 +79,7 @@ function ScoreForm() {
       <h1 className="text-lg mb-4">Map Settings</h1>
       <form
         className="p-4 border border-[#44454d] rounded-lg text-sm"
-        onSubmit={handleSubmit}
+        onSubmit={handleMapSubmit}
       >
         {(
           [
@@ -71,6 +89,32 @@ function ScoreForm() {
             "Score monumenten",
             "Score drukke wegen",
             "Score parken",
+          ] as (keyof Scores)[]
+        ).map((score) => (
+          <NumberInputForm
+            key={score}
+            score={score}
+            value={inputScores[score]}
+            onChange={handleChange}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
+          />
+        ))}
+
+        <button
+          className="p-2 mt-4 rounded-lg border hover:border-red-500 hover:text-red-500"
+          type="submit"
+        >
+          Calculate
+        </button>
+      </form>
+
+      <form
+        className="p-4 border border-[#44454d] rounded-lg text-sm mt-4"
+        onSubmit={handleRouteSubmit}
+      >
+        {(
+          [
             "Start knooppunt",
             "Eind knooppunt",
             "Minimale afstand",

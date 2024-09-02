@@ -12,7 +12,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import chroma from "chroma-js";
-import { useResponse } from "@/context/ResponseContext";
+import { useMapData } from "@/context/MapDataContext";
+import { useRouteData } from "@/context/RouteDataContext";
 import { NodesData, RoadsData, Road } from "@/types/types";
 
 const fetchGeoJSON = async (endpoint: string) => {
@@ -30,9 +31,8 @@ const MapDisplay = () => {
   const [nodesData, setNodesData] = useState<NodesData | null>(null);
   const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
   const [renderNodes, setRenderNodes] = useState(false);
-  const { response } = useResponse();
-
-  console.log(response);
+  const { mapData } = useMapData();
+  const { routeData } = useRouteData();
 
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
@@ -52,8 +52,20 @@ const MapDisplay = () => {
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {response &&
-        response.features.map((road: Road, idx: number) => (
+      {mapData &&
+        mapData.features.map((road: Road, idx: number) => (
+          <Polyline
+            key={idx}
+            positions={road.geometry.coordinates.map((coord) => [
+              coord[1],
+              coord[0],
+            ])}
+            color={getColorForScore(road.properties.Score)}
+          />
+        ))}
+
+      {routeData &&
+        routeData.features.map((road: Road, idx: number) => (
           <Polyline
             key={idx}
             positions={road.geometry.coordinates.map((coord) => [
