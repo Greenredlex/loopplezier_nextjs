@@ -12,51 +12,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import chroma from "chroma-js";
-import { useScore } from "@/context/ScoreContext";
-
-interface NodesData {
-  type: string;
-  features: Node[];
-}
-
-interface Node {
-  type: string;
-  properties: {
-    knooppunt: number;
-    street_count: number;
-  };
-  geometry: {
-    type: string;
-    coordinates: [number, number];
-  };
-}
-
-interface RoadsData {
-  type: string;
-  features: Road[];
-}
-
-interface Road {
-  type: string;
-  properties: {
-    Score: number;
-    length: number;
-    score_bomen: number;
-    score_monumenten: number;
-    score_ovl: number;
-    score_park: number;
-    score_spoor: number;
-    score_water: number;
-    score_wegen: number;
-    score_zitmogelijkheden: number;
-    u: number;
-    v: number;
-  };
-  geometry: {
-    type: string;
-    coordinates: [number, number][];
-  };
-}
+import { useResponse } from "@/context/ResponseContext";
+import { NodesData, RoadsData, Road } from "@/types/types";
 
 const fetchGeoJSON = async (endpoint: string) => {
   const response = await fetch(`/api/data?endpoint=${endpoint}`);
@@ -73,9 +30,9 @@ const MapDisplay = () => {
   const [nodesData, setNodesData] = useState<NodesData | null>(null);
   const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
   const [renderNodes, setRenderNodes] = useState(false);
-  const { score } = useScore();
+  const { response } = useResponse();
 
-  console.log("score log:", score);
+  console.log("score log:", response);
 
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
@@ -95,8 +52,8 @@ const MapDisplay = () => {
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {score &&
-        score.features.map((road: Road, idx: number) => (
+      {response &&
+        response.features.map((road: Road, idx: number) => (
           <Polyline
             key={idx}
             positions={road.geometry.coordinates.map((coord) => [

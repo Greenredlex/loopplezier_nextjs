@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useScore } from "@/context/ScoreContext";
+import { useResponse } from "@/context/ResponseContext";
 import { Scores } from "@/types/types";
 import NumberInputForm from "./NumberInputForm";
 
@@ -16,7 +16,7 @@ function ScoreForm() {
     G_min: 500,
     G_max: 500,
   });
-  const { setScore } = useScore();
+  const { setResponse } = useResponse();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,7 +53,7 @@ function ScoreForm() {
 
     const responseData = await response.json();
 
-    setScore(responseData);
+    setResponse(responseData);
   };
 
   return (

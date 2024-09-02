@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ScoreProvider } from "@/context/ScoreContext";
+import { ResponseProvider } from "@/context/ResponseContext";
 import ScoreForm from "@/components/ScoreForm";
 import dynamic from "next/dynamic";
 
@@ -17,7 +17,7 @@ export default function Home() {
   };
 
   return (
-    <ScoreProvider>
+    <ResponseProvider>
       <div className="relative flex h-screen w-full">
         <div
           className={`fixed top-0 left-0 h-screen bg-[#262730] shadow-lg z-40 transform transition-transform duration-500 sm:border border-r-[#44454d] border-y-transparent border-l-transparent ${
@@ -55,6 +55,6 @@ export default function Home() {
           <MapDisplay />
         </div>
       </div>
-    </ScoreProvider>
+    </ResponseProvider>
   );
 }
