@@ -1,20 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Popup,
-  CircleMarker,
-  Polyline,
-} from "react-leaflet";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import "react-leaflet-markercluster/dist/styles.min.css";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import chroma from "chroma-js";
 import { useMapData } from "@/context/MapDataContext";
 import { useRouteData } from "@/context/RouteDataContext";
-import { NodesData, RoadsData, Road } from "@/types/types";
+import { NodesData, RoadsData } from "@/types/types";
+import L from "leaflet";
 
 const fetchGeoJSON = async (endpoint: string) => {
   const response = await fetch(`/api/data?endpoint=${endpoint}`);
@@ -24,7 +20,7 @@ const fetchGeoJSON = async (endpoint: string) => {
 
 const getColorForScore = (score: number): string => {
   const colormap = chroma.scale("RdYlGn").domain([-1, 1]);
-  return (colormap(score) as chroma.Color).hex();
+  return colormap(score).hex();
 };
 
 const MapDisplay = () => {
@@ -33,14 +29,67 @@ const MapDisplay = () => {
   const [renderNodes, setRenderNodes] = useState(false);
   const { mapData } = useMapData();
   const { routeData } = useRouteData();
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    fetchGeoJSON("nodes").then(setNodesData);
-    fetchGeoJSON("roads").then((data) => {
-      setRoadsData(data);
-      setTimeout(() => setRenderNodes(true), 100);
-    });
+    workerRef.current = new Worker(
+      new URL("@/pages/dataWorker.js", import.meta.url)
+    );
+
+    workerRef.current.onmessage = (e) => {
+      const { type, data } = e.data;
+      if (type === "DATA_PROCESSED") {
+        setRoadsData(data.roads);
+        setNodesData(data.nodes);
+        setRenderNodes(true);
+      }
+    };
+
+    const fetchData = async () => {
+      const nodes = await fetchGeoJSON("nodes");
+      const roads = await fetchGeoJSON("roads");
+      workerRef.current?.postMessage({
+        type: "PROCESS_DATA",
+        data: { nodes, roads },
+      });
+    };
+    fetchData();
+
+    return () => {
+      workerRef.current?.terminate();
+    };
   }, []);
+
+  const memoizedRoadsData = useMemo(() => roadsData, [roadsData]);
+  const memoizedNodesData = useMemo(() => nodesData, [nodesData]);
+  const memoizedMapData = useMemo(() => mapData, [mapData]);
+  const memoizedRouteData = useMemo(() => routeData, [routeData]);
+
+  const roadStyle = (feature: any) => ({
+    color: getColorForScore(feature.properties.Score),
+    weight: 3,
+  });
+
+  const routeStyle = {
+    color: "#0b6ce3",
+    weight: 3,
+  };
+
+  const pointToLayer = (feature: any, latlng: L.LatLng) => {
+    return L.circleMarker(latlng, {
+      radius: 1,
+      color: "black",
+    });
+  };
+
+  const onEachNodeFeature = (feature: any, layer: any) => {
+    layer.bindPopup(
+      `<div>
+        <strong>Knooppunt: </strong>${feature.properties.knooppunt}<br />
+        <strong>Street Count: </strong>${feature.properties.street_count}
+      </div>`
+    );
+  };
 
   return (
     <MapContainer
@@ -49,71 +98,29 @@ const MapDisplay = () => {
       style={{ height: "100vh", width: "100%" }}
       attributionControl={false}
       zoomControl={false}
+      preferCanvas={true}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {mapData &&
-        mapData.features.map((road: Road, idx: number) => (
-          <Polyline
-            key={idx}
-            positions={road.geometry.coordinates.map((coord) => [
-              coord[1],
-              coord[0],
-            ])}
-            color={getColorForScore(road.properties.Score)}
-          />
-        ))}
+      {!memoizedMapData && memoizedRoadsData && (
+        <GeoJSON data={memoizedRoadsData} style={roadStyle} />
+      )}
 
-      {routeData &&
-        routeData.features.map((road: Road, idx: number) => (
-          <Polyline
-            key={idx}
-            positions={road.geometry.coordinates.map((coord) => [
-              coord[1],
-              coord[0],
-            ])}
-            color={"#0b6ce3"}
-          />
-        ))}
+      {memoizedMapData && <GeoJSON data={memoizedMapData} style={roadStyle} />}
 
-      {roadsData &&
-        roadsData.features.map((road, idx) => (
-          <Polyline
-            key={idx}
-            positions={road.geometry.coordinates.map((coord) => [
-              coord[1],
-              coord[0],
-            ])}
-            color={getColorForScore(road.properties.Score)}
-            weight={3}
-          />
-        ))}
+      {memoizedRouteData && (
+        <GeoJSON data={memoizedRouteData} style={routeStyle} />
+      )}
 
-      {renderNodes &&
-        nodesData &&
-        nodesData.features.map((feature, id) => (
-          <CircleMarker
-            key={id}
-            center={[
-              feature.geometry.coordinates[1],
-              feature.geometry.coordinates[0],
-            ]}
-            color="black"
-            radius={1}
-          >
-            <Popup>
-              <div>
-                <strong>Knooppunt: </strong>
-                {feature.properties.knooppunt}
-                <br />
-                <strong>Street Count: </strong>
-                {feature.properties.street_count}
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+      {renderNodes && memoizedNodesData && (
+        <GeoJSON
+          data={memoizedNodesData}
+          pointToLayer={pointToLayer}
+          onEachFeature={onEachNodeFeature}
+        />
+      )}
     </MapContainer>
   );
 };
 
-export default MapDisplay;
+export default React.memo(MapDisplay);

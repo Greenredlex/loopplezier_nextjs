@@ -1,3 +1,5 @@
+import { Feature, FeatureCollection, Point, LineString } from "geojson";
+
 export interface Scores {
   "Score openbare verlichting": number;
   "Score bomen": number;
@@ -5,46 +7,46 @@ export interface Scores {
   "Score monumenten": number;
   "Score drukke wegen": number;
   "Score parken": number;
-  "Start knooppunt": number,
-  "Eind knooppunt": number,
-  "Minimale afstand": number,
-  "Maximale afstand": number,
-  }
+  "Start knooppunt": number;
+  "Eind knooppunt": number;
+  "Minimale afstand": number;
+  "Maximale afstand": number;
+}
 
-export interface MapData {
-  type: string;
+export interface MapData extends FeatureCollection {
+  type: "FeatureCollection";
   features: Road[];
-  }
+}
 
-export interface RouteData {
-  type: string;
+export interface RouteData extends FeatureCollection {
+  type: "FeatureCollection";
   features: Road[];
-  }
+}
 
-export interface NodesData {
-  type: string;
+export interface NodesData extends FeatureCollection {
+  type: "FeatureCollection";
   features: Node[];
 }
 
-export interface Node {
-  type: string;
+export interface Node extends Feature<Point> {
+  type: "Feature";
   properties: {
     knooppunt: number;
     street_count: number;
   };
   geometry: {
-    type: string;
+    type: "Point";
     coordinates: [number, number];
   };
 }
 
-export interface RoadsData {
-  type: string;
+export interface RoadsData extends FeatureCollection {
+  type: "FeatureCollection";
   features: Road[];
 }
 
-export interface Road {
-  type: string;
+export interface Road extends Feature<LineString> {
+  type: "Feature";
   properties: {
     Score: number;
     length: number;
@@ -60,7 +62,7 @@ export interface Road {
     v: number;
   };
   geometry: {
-    type: string;
+    type: "LineString";
     coordinates: [number, number][];
   };
 }
