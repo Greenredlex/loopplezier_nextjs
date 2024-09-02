@@ -60,11 +60,11 @@ const MapDisplay = () => {
               coord[1],
               coord[0],
             ])}
-            color={getColorForScore(road.properties.Score)}
+            color={"#0b6ce3"}
           />
         ))}
 
-      {/* {roadsData &&
+      {roadsData &&
         roadsData.features.map((road, idx) => (
           <Polyline
             key={idx}
@@ -75,7 +75,7 @@ const MapDisplay = () => {
             color={getColorForScore(road.properties.Score)}
             weight={3}
           />
-        ))} */}
+        ))}
 
       {renderNodes &&
         nodesData &&
