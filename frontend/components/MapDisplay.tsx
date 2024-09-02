@@ -32,7 +32,7 @@ const MapDisplay = () => {
   const [renderNodes, setRenderNodes] = useState(false);
   const { response } = useResponse();
 
-  console.log("score log:", response);
+  console.log(response);
 
   useEffect(() => {
     fetchGeoJSON("nodes").then(setNodesData);
@@ -64,7 +64,7 @@ const MapDisplay = () => {
           />
         ))}
 
-      {roadsData &&
+      {/* {roadsData &&
         roadsData.features.map((road, idx) => (
           <Polyline
             key={idx}
@@ -75,7 +75,7 @@ const MapDisplay = () => {
             color={getColorForScore(road.properties.Score)}
             weight={3}
           />
-        ))}
+        ))} */}
 
       {renderNodes &&
         nodesData &&

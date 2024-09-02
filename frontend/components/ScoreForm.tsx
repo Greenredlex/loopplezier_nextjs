@@ -11,10 +11,10 @@ function ScoreForm() {
     "Score monumenten": 0,
     "Score drukke wegen": 0,
     "Score parken": 0,
-    Start: 0,
-    End: 0,
-    G_min: 500,
-    G_max: 500,
+    "Start knooppunt": 1399,
+    "Eind knooppunt": 1346,
+    "Minimale afstand": 200,
+    "Maximale afstand": 1000,
   });
   const { setResponse } = useResponse();
 

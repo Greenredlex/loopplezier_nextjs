@@ -5,10 +5,10 @@ export interface Scores {
   "Score monumenten": number;
   "Score drukke wegen": number;
   "Score parken": number;
-  "Start": number,
-  "End": number,
-  "G_min": number,
-  "G_max": number,
+  "Start knooppunt": number,
+  "Eind knooppunt": number,
+  "Minimale afstand": number,
+  "Maximale afstand": number,
   }
 
 export interface ResponseData {

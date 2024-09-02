@@ -7,10 +7,10 @@ import matplotlib.colors as mcolors
 app = Flask(__name__)
 
 def style_function(feature):
-	cmap = cm.RdYlGn  # Choose a continuous colormap (11 colors)
-	value = feature['properties']['Score']  # Get the value from your column
+	cmap = cm.RdYlGn  
+	value = feature['properties']['Score'] 
 	normalized_value = (0.5*value)+0.5
-	color = mcolors.rgb2hex(cmap(normalized_value))  # Map the value to a color
+	color = mcolors.rgb2hex(cmap(normalized_value))  
 	return {'color': color}
 
 
@@ -50,12 +50,14 @@ def calculate_score():
                                      int(scores['Score drukke wegen']),
                                      int(scores['Score parken']))
 
-    df_route, distance, score = calculate_route(final_gdf, int(scores['Start']), int(scores['End']), int(scores['G_min']), int(scores['G_max']))
+    df_route, distance, score = calculate_route(final_gdf, 
+                                                int(scores['Start knooppunt']), 
+                                                int(scores['Eind knooppunt']), 
+                                                int(scores['Minimale afstand']), 
+                                                int(scores['Maximale afstand']))
 
     # Return df_route for route and return final_gdf for entire map
-    return final_gdf.to_json()
-
-
+    return df_route.to_json()
 
 
 if __name__ == '__main__':
