@@ -1,46 +1,39 @@
-from flask import Flask, request, jsonify
+import json
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
 import geopandas as gpd
 from functions import *
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
 
-app = Flask(__name__)
+app = FastAPI()
 
 gdf = None
 scores = None
 
-def style_function(feature):
-    cmap = cm.RdYlGn  
-    value = feature['properties']['Score'] 
-    normalized_value = (0.5 * value) + 0.5
-    color = mcolors.rgb2hex(cmap(normalized_value))  
-    return {'color': color}
-
-@app.route('/nodes')
-def nodes_geojson():
+@app.get('/nodes')
+async def nodes_geojson():
     nodes = gpd.read_feather('data/nodes.feather').to_crs('EPSG:4326')
     nodes = nodes.reset_index().rename(columns={'osmid': 'knooppunt'})
 
     gdf = gpd.GeoDataFrame(nodes)
     nodes_geojson = gdf.to_json()
 
-    return jsonify(nodes_geojson)
+    return JSONResponse(content=nodes_geojson)
 
-@app.route('/roads')
-def df_geojson():
+@app.get('/roads')
+async def df_geojson():
     gdf = gpd.read_feather('data/df_full.feather').to_crs('EPSG:4326')
     gdf = gdf.reset_index(drop=True)
 
     gdf = gpd.GeoDataFrame(gdf)
     full_geojson = gdf.to_json()
 
-    return jsonify(full_geojson)
+    return JSONResponse(content=full_geojson)
 
-@app.route('/score_map', methods=['POST'])
-def calculate_score():
+@app.post('/score_map')
+async def calculate_score(request: Request):
     global gdf, scores  
 
-    data = request.get_json()
+    data = await request.json()
     scores = data['scores']  
 
     gdf = gpd.read_feather('data/df_full.feather').to_crs('EPSG:4326')
@@ -53,14 +46,16 @@ def calculate_score():
                                int(scores['Score drukke wegen']),
                                int(scores['Score parken']))
 
-    return gdf.to_json()
+    return JSONResponse(content=json.loads(gdf.to_json()))
 
-@app.route('/route', methods=['POST'])
-def calculate_recommended_route():
+@app.post('/route')
+async def calculate_recommended_route(request: Request):
     global gdf, scores  
 
     if gdf is None or scores is None:
-        return jsonify({'error': 'Global variables not set'}), 400
+        raise HTTPException(status_code=400, detail="Global variables not set")
+
+    data = await request.json()
 
     df_route, distance, score = calculate_route(gdf, 
                                                 int(scores['Start knooppunt']), 
@@ -68,7 +63,9 @@ def calculate_recommended_route():
                                                 int(scores['Minimale afstand']), 
                                                 int(scores['Maximale afstand']))
 
-    return df_route.to_json()
+    return JSONResponse(content=json.loads(df_route.to_json()))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import uvicorn
+    uvicorn.run("server:app", host='0.0.0.0', port=8000, reload=True)
+

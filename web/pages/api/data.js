@@ -6,7 +6,7 @@ export const config = {
 
 export default async function handler(req, res) {
   const { endpoint } = req.query;
-  const url = `http://127.0.0.1:5000/${endpoint}`;
+  const url = `http://127.0.0.1:8000/${endpoint}`;
 
   // Forward both GET and POST requests
   const response = await fetch(url, {

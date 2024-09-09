@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-import "react-leaflet-markercluster/dist/styles.min.css";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -36,7 +35,6 @@ const MapDisplay = () => {
         const nodes = await fetchGeoJSON("nodes");
         const roads = await fetchGeoJSON("roads");
 
-        // Processing the data directly in the component
         setRoadsData(roads);
         setNodesData(nodes);
         setRenderNodes(true);
