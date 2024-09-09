@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import "leaflet/dist/leaflet.css";
@@ -29,35 +29,23 @@ const MapDisplay = () => {
   const [renderNodes, setRenderNodes] = useState(false);
   const { mapData } = useMapData();
   const { routeData } = useRouteData();
-  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    workerRef.current = new Worker(
-      new URL("@/pages/dataWorker.js", import.meta.url)
-    );
+    const fetchData = async () => {
+      try {
+        const nodes = await fetchGeoJSON("nodes");
+        const roads = await fetchGeoJSON("roads");
 
-    workerRef.current.onmessage = (e) => {
-      const { type, data } = e.data;
-      if (type === "DATA_PROCESSED") {
-        setRoadsData(data.roads);
-        setNodesData(data.nodes);
+        // Processing the data directly in the component
+        setRoadsData(roads);
+        setNodesData(nodes);
         setRenderNodes(true);
+      } catch (error) {
+        console.error("Error fetching geoJSON data:", error);
       }
     };
 
-    const fetchData = async () => {
-      const nodes = await fetchGeoJSON("nodes");
-      const roads = await fetchGeoJSON("roads");
-      workerRef.current?.postMessage({
-        type: "PROCESS_DATA",
-        data: { nodes, roads },
-      });
-    };
     fetchData();
-
-    return () => {
-      workerRef.current?.terminate();
-    };
   }, []);
 
   const memoizedRoadsData = useMemo(() => roadsData, [roadsData]);
