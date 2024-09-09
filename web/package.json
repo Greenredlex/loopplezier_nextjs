@@ -17,8 +17,7 @@
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18",
-    "react-leaflet": "^4.2.1",
-    "react-leaflet-markercluster": "^3.0.0-rc1"
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.4",
