@@ -4,7 +4,7 @@ from functions import calculate_new_column
 class ScoreModel:
     @staticmethod
     def calculate_score(scores):
-        gdf = gpd.read_feather('data/df_full.feather').to_crs('EPSG:4326')
+        gdf = gpd.read_feather('src/data/df_full.feather').to_crs('EPSG:4326')
         gdf = gdf.reset_index(drop=True)
         
         gdf = calculate_new_column(
