@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import chroma from "chroma-js";
 import { useMapData } from "@/context/MapDataContext";
 import { useRouteData } from "@/context/RouteDataContext";
-import { NodesData, RoadsData } from "@/types/types";
+import { NodesData, RoadsData, MapData, RouteData } from "@/types/types";
 import L from "leaflet";
 
 const fetchGeoJSON = async (endpoint: string) => {
@@ -22,12 +22,48 @@ const getColorForScore = (score: number): string => {
   return colormap(score).hex();
 };
 
+// Custom GeoJSON components that automatically update
+const MapDataLayer = ({ data, style }: { data: MapData, style: any }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    // Clear previous layers if they exist
+    map.eachLayer((layer) => {
+      if (layer instanceof L.GeoJSON) {
+        map.removeLayer(layer);
+      }
+    });
+    
+    // Add the new layer
+    L.geoJSON(data, { style }).addTo(map);
+  }, [data, map, style]);
+  
+  return null;
+};
+
+const RouteDataLayer = ({ data, style }: { data: RouteData, style: any }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    // Add the new route layer
+    const routeLayer = L.geoJSON(data, { style });
+    routeLayer.addTo(map);
+    
+    return () => {
+      map.removeLayer(routeLayer);
+    };
+  }, [data, map, style]);
+  
+  return null;
+};
+
 const MapDisplay = () => {
   const [nodesData, setNodesData] = useState<NodesData | null>(null);
   const [roadsData, setRoadsData] = useState<RoadsData | null>(null);
   const [renderNodes, setRenderNodes] = useState(false);
   const { mapData } = useMapData();
   const { routeData } = useRouteData();
+  const [updateKey, setUpdateKey] = useState(Date.now());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +81,11 @@ const MapDisplay = () => {
 
     fetchData();
   }, []);
+
+  // Force re-render when mapData or routeData changes
+  useEffect(() => {
+    setUpdateKey(Date.now());
+  }, [mapData, routeData]);
 
   const memoizedRoadsData = useMemo(() => roadsData, [roadsData]);
   const memoizedNodesData = useMemo(() => nodesData, [nodesData]);
@@ -92,11 +133,9 @@ const MapDisplay = () => {
         <GeoJSON data={memoizedRoadsData} style={roadStyle} />
       )}
 
-      {memoizedMapData && <GeoJSON data={memoizedMapData} style={roadStyle} />}
+      {memoizedMapData && <MapDataLayer data={memoizedMapData} style={roadStyle} />}
 
-      {memoizedRouteData && (
-        <GeoJSON data={memoizedRouteData} style={routeStyle} />
-      )}
+      {memoizedRouteData && <RouteDataLayer data={memoizedRouteData} style={routeStyle} />}
 
       {renderNodes && memoizedNodesData && (
         <GeoJSON

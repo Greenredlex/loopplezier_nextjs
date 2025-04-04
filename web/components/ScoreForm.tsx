@@ -54,8 +54,20 @@ function ScoreForm() {
     });
 
     const responseData = await response.json();
-
-    setMapData(responseData);
+    console.log(responseData);
+    
+    // Handle both response formats - direct FeatureCollection or wrapped object
+    if (responseData.type === "FeatureCollection") {
+      setMapData(responseData);
+    } else if (responseData.features) {
+      // Convert to proper FeatureCollection format if needed
+      setMapData({
+        type: "FeatureCollection",
+        features: responseData.features
+      });
+    } else {
+      console.error("Unexpected response format:", responseData);
+    }
   };
 
   const handleRouteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -70,8 +82,20 @@ function ScoreForm() {
     });
 
     const responseData = await response.json();
-
-    setRouteData(responseData);
+    console.log(responseData);
+    
+    // Handle both response formats - direct FeatureCollection or wrapped object
+    if (responseData.type === "FeatureCollection") {
+      setRouteData(responseData);
+    } else if (responseData.features) {
+      // Convert to proper FeatureCollection format if needed
+      setRouteData({
+        type: "FeatureCollection",
+        features: responseData.features
+      });
+    } else {
+      console.error("Unexpected response format:", responseData);
+    }
   };
 
   return (
